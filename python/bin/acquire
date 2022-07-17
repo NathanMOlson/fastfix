@@ -51,6 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--iq', action='store_true', help="Use I/Q complex baseband.")
     parser.add_argument('--spectrum', action='store_true', help="Plot the spectrum of the data.")
     parser.add_argument('--corr-plot', action='store_true', help="Plot the correlations of each SV.")
+    parser.add_argument('--start-date', required=False, help="Date and time for the start of the clock.")
     ARGS = parser.parse_args()
     
     if ARGS.tag_dir is not None:
@@ -84,8 +85,16 @@ if __name__ == '__main__':
     
 
         ret, dat = handle_file(ARGS.binfile, ARGS.fc0, ARGS.iq, searchBand=5000)
+        if ARGS.start_date is not None:
+            full_json = {}
+            full_json['start'] = ARGS.start_date
+            full_json['fixes'] = []
+            full_json['fixes'].append(ret)
+        else:
+            full_json = ret
+
         with open(ARGS.outfile,'w') as fp:
-            json.dump(ret, fp, sort_keys=True, indent=4)
+            json.dump(full_json, fp, sort_keys=True, indent=4)
 
         if ARGS.spectrum:
             plt.close('all')
